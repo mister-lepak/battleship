@@ -1,31 +1,25 @@
 const shipFactory = (length, orientation, startPos, damagedPos, sunk) => {
-  const hit = (posX, posY) => {
-    if (!sunk) {
-      let positionArrayX = [];
-      let positionArrayY = [];
-      let attackPos = [posX, posY];
-      for (let i = 0; i < length; i++) {
-        let positionVal = [];
-        orientation === "horizontal"
-          ? (positionVal = [startPos[0] + i, startPos[1]])
-          : (positionVal = [startPos[0], startPos[1] + i]);
-        if (!damagedPos[i]) {
-          positionArrayX = positionArrayX.concat(positionVal[0]);
-          positionArrayY = positionArrayY.concat(positionVal[1]);
-        }
-      }
-      const attackPositionCheck =
-        positionArrayX.includes(attackPos[0]) &&
-        positionArrayY.includes(attackPos[1]);
+  const hit = (inputPos) => {
+    if (sunk) return false;
 
-      if (attackPositionCheck) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-    return false;
+    const relativeHitPos = [
+      inputPos[0] - startPos[0],
+      inputPos[1] - startPos[1],
+    ];
+    const orientationAxis = orientation === "horizontal" ? 0 : 1;
+    const staticAxis = 1 - orientationAxis;
+    if (relativeHitPos[staticAxis] !== 0) return false;
+
+    const orientationPos = relativeHitPos[orientationAxis];
+    if (orientationPos < 0 || orientationPos >= length) return false;
+
+    const isAlreadyDamaged = damagedPos[orientationPos];
+    damagedPos[orientationPos] = true;
+
+    return !isAlreadyDamaged;
   };
+
+  const isSunk = () => {};
   return { length, hit };
 };
 

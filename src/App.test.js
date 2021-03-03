@@ -7,8 +7,7 @@ test("renders learn react link", () => {
 });
 
 it("hit() successfully", () => {
-  const inputX = 5;
-  const inputY = 2;
+  const input = [5, 2];
 
   const shipTest = shipFactory(
     3,
@@ -17,12 +16,11 @@ it("hit() successfully", () => {
     [false, false, false],
     false
   );
-  expect(shipTest.hit(inputX, inputY)).toBe(true);
+  expect(shipTest.hit(input)).toBe(true);
 });
 
 it("hit() on already damaged part", () => {
-  const inputX = 5;
-  const inputY = 2;
+  const input = [5, 2];
 
   const shipTest = shipFactory(
     3,
@@ -31,12 +29,11 @@ it("hit() on already damaged part", () => {
     [false, false, true],
     false
   );
-  expect(shipTest.hit(inputX, inputY)).toBe(false);
+  expect(shipTest.hit(input)).toBe(false);
 });
 
 it("misses the hit()", () => {
-  const inputX = 5;
-  const inputY = 3;
+  const input = [5, 3];
 
   const shipTest = shipFactory(
     3,
@@ -45,5 +42,5 @@ it("misses the hit()", () => {
     [false, false, false],
     false
   );
-  expect(shipTest.hit(inputX, inputY)).toBe(false);
+  expect(shipTest.hit(input)).toBe(false);
 });
