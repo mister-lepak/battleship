@@ -19,8 +19,17 @@ const shipFactory = (length, orientation, startPos, damagedPos, sunk) => {
     return !isAlreadyDamaged;
   };
 
-  const isSunk = () => {};
-  return { length, hit };
+  const isSunk = () => {
+    const isAllDamaged = damagedPos.reduce(
+      (cumulative, eachDamagedPos) => cumulative && eachDamagedPos
+    );
+    if (isAllDamaged) {
+      return true;
+    }
+    return false;
+  };
+
+  return { length, hit, isSunk };
 };
 
 module.exports = { shipFactory };

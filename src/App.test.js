@@ -44,3 +44,25 @@ it("misses the hit()", () => {
   );
   expect(shipTest.hit(input)).toBe(false);
 });
+
+it("assess if the ship has sunk when not all position damaged", () => {
+  const shipTest = shipFactory(
+    3,
+    "horizontal",
+    [3, 2],
+    [false, true, false],
+    false
+  );
+  expect(shipTest.isSunk()).toBe(false);
+});
+
+it("assess if the ship has sunk when all position damaged", () => {
+  const shipTest = shipFactory(
+    3,
+    "horizontal",
+    [3, 2],
+    [true, true, true],
+    false
+  );
+  expect(shipTest.isSunk()).toBe(true);
+});
