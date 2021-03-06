@@ -1,5 +1,6 @@
 import "./App.css";
-import { shipFactory } from "./components/shipFactory";
+import { shipFactory } from "./factories/shipFactory";
+import gameBoardFactory from "./factories/gameBoardFactory";
 
 function App() {
   return <></>;
