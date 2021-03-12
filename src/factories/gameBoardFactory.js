@@ -1,12 +1,21 @@
 // import shipFactory from "./shipFactory";
+import _ from "lodash";
+import { Grid, Segment } from "semantic-ui-react";
 
-const gameBoardFactory = () => {
-  let boardTiles = [];
+const gameBoardFactory = (boardTiles = []) => {
   const initialize = () => {
-    for (let i = 0; i < 100; i++) {
+    _.times(100, (i) => {
       boardTiles.push({ hasShip: false, isShot: false });
-    }
-    return true;
+      return (
+        <>
+          <Grid.column key={i}>
+            <Segment> x </Segment>
+          </Grid.column>
+        </>
+      );
+    });
+
+    // return true;
   };
 
   const placeShipOnBoard = (startPos) => {
@@ -72,4 +81,4 @@ const gameBoardFactory = () => {
   };
 };
 
-module.exports = { gameBoardFactory };
+export default gameBoardFactory;

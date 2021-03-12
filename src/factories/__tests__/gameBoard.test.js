@@ -1,4 +1,4 @@
-import { gameBoardFactory } from "../gameBoardFactory";
+import gameBoardFactory from "../gameBoardFactory";
 
 beforeEach(() => {});
 
