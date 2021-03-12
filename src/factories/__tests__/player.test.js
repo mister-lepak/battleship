@@ -1,3 +1,13 @@
-it("AI does not pick at the same coordinate twice", () => {
-  expect(player([3, 2])).toBe(false);
+import { player } from "../playerFactory";
+
+it("AI choose random value", () => {
+  expect(player("AI").randomAttack()).not.toBeNull();
+});
+
+it("make player's turns active", () => {
+  expect(player("user").makeTurnsActive()).toBe(true);
+});
+
+it("checks if locks gameBoard returns true", () => {
+  expect(player("AI").lockGameboard()).toBe(true);
 });

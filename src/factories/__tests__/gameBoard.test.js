@@ -1,13 +1,21 @@
-import gameBoardFactory from "../gameBoardFactory";
+import { gameBoardFactory } from "../gameBoardFactory";
 
 beforeEach(() => {});
 
 it("gameboard activates successfully", () => {
-  const player1Test = [[3, 2]];
-  const player2Test = [[3, 3]];
-  const gameBoardTest = gameBoardFactory(player1Test, player2Test);
+  const gameBoardTest = gameBoardFactory();
   expect(gameBoardTest.initialize()).toBe(true);
 });
+
+// it("assign a ship on the board", () => {
+//   const gameBoardTest = gameBoardFactory();
+//   gameBoardTest.initialize();
+
+//   gameBoardTest
+//     .shipFactory(3, "horizontal", [3, 2], [false, false, false], false)
+//     .placeShipOnBoard();
+//   expect(gameBoardTest.boardTiles[32].hasShip).toBe(true);
+// });
 
 it("activate receiveAttack and it hits a ship", () => {
   const player1Test = [[3, 2]];
