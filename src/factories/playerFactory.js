@@ -1,3 +1,3 @@
 const playerFactory = () => {};
 
-module.exports = playerFactory;
+module.exports = { playerFactory };

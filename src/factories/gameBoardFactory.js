@@ -1,4 +1,4 @@
-import shipFactory from "./shipFactory";
+// import shipFactory from "./shipFactory";
 
 const gameBoardFactory = () => {
   let boardTiles = [];
@@ -9,11 +9,33 @@ const gameBoardFactory = () => {
     return true;
   };
 
+  const placeShipOnBoard = (startPos) => {
+    const shipsA = [
+      {
+        length: 3,
+        orientation: "horizontal",
+        startPos: [3, 2],
+        damagedPos: [false, false, true],
+        sunk: false,
+      },
+      {
+        length: 5,
+        orientation: "vertical",
+        startPos: [1, 1],
+        damagedPos: [false, false, false, false, false],
+        sunk: false,
+      },
+    ];
+    // shipsA.map((ship) => shipFactory(ship));
+    const sequenceCalc = startPos[0] * 10 + startPos[1];
+    boardTiles[sequenceCalc].hasShip = true;
+  };
+
   const receiveAttack = (coordinates) => {
     const sequenceCalc = coordinates[0] * 10 + coordinates[1];
     if (boardTiles[sequenceCalc].isShot) return false;
     if (boardTiles[sequenceCalc].hasShip) {
-      shipFactory.hit([coordinates]);
+      // shipFactory.hit([coordinates]);
       boardTiles[sequenceCalc].isShot = true;
     }
     return true;
@@ -39,13 +61,15 @@ const gameBoardFactory = () => {
     if (!areAllShipsShot) return false;
     return tilesWithShips;
   };
+
   return {
     initialize,
-    shipFactory,
+    placeShipOnBoard,
+    // shipFactory,
     receiveAttack,
     isAlreadyAttacked,
     areAllShipsSunk,
   };
 };
 
-module.exports = gameBoardFactory;
+module.exports = { gameBoardFactory };
