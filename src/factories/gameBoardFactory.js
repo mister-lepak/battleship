@@ -2,16 +2,29 @@
 import _ from "lodash";
 import { Grid, Segment } from "semantic-ui-react";
 
-const gameBoardFactory = (boardTiles = []) => {
+const gameBoardFactory = (shipTiles, boardTiles = []) => {
   const initialize = () => {
-    _.times(100, (i) => {
-      boardTiles.push({ hasShip: false, isShot: false });
+    const tilesWithShips = [];
+    _.forOwn(shipTiles, function (coordinatesSets, key) {
+      _.forEach(coordinatesSets, function (coordinates) {
+        const sequenceCalc = coordinates[1] * 10 + coordinates[0];
+        tilesWithShips.push(sequenceCalc);
+      });
+    });
+    return _.times(100, (i) => {
+      let hasShipValue = false;
+      let gridClass = "eachGrid";
+      if (tilesWithShips.includes(i)) {
+        hasShipValue = true;
+        gridClass = "shipGrid";
+      }
+      boardTiles.push({ hasShip: hasShipValue, isShot: false });
       return (
-        <>
-          <Grid.column key={i}>
-            <Segment> x </Segment>
-          </Grid.column>
-        </>
+        <Grid.Column
+          textAlign="center"
+          key={i}
+          className={gridClass}
+        ></Grid.Column>
       );
     });
 
