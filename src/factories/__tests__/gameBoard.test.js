@@ -3,7 +3,19 @@ import gameBoardFactory from "../gameBoardFactory";
 beforeEach(() => {});
 
 it("gameboard activates successfully", () => {
-  const gameBoardTest = gameBoardFactory();
+  const ships = {
+    1: [[2, 2]],
+    2: [
+      [7, 8],
+      [8, 8],
+    ],
+    3: [
+      [4, 5],
+      [4, 6],
+      [4, 7],
+    ],
+  };
+  const gameBoardTest = gameBoardFactory(ships);
   expect(gameBoardTest.initialize()).toBe(true);
 });
 
