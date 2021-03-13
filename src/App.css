@@ -1,1 +1,10 @@
+.eachGrid {
+  border: 1px solid black;
+}
+.eachGrid:hover {
+  background-color: #7fffd4;
+}
 
+.shipGrid {
+  background-color: aquamarine;
+}
