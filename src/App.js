@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { Header, Grid } from "semantic-ui-react";
 
 function App() {
-  const ships = {
+  const userShips = {
     1: [[2, 2]],
     2: [
       [7, 8],
@@ -15,6 +15,19 @@ function App() {
       [4, 5],
       [4, 6],
       [4, 7],
+    ],
+  };
+
+  const aiShips = {
+    1: [[5, 7]],
+    2: [
+      [6, 3],
+      [7, 3],
+    ],
+    3: [
+      [1, 7],
+      [1, 8],
+      [1, 9],
     ],
   };
 
@@ -28,11 +41,18 @@ function App() {
       </Header>
       <Grid>
         <Grid.Column width={1}></Grid.Column>
-        <Grid.Column width={8}>
-          <Grid columns={10}>{gameBoardFactory(ships).initialize()}</Grid>
-        </Grid.Column>
         <Grid.Column width={6}>
-          <Grid columns={1} width={1}></Grid>
+          <Header as="h2" textAlign="center">
+            User Board
+          </Header>
+          <Grid columns={10}>{gameBoardFactory(userShips).initialize()}</Grid>
+        </Grid.Column>
+        <Grid.Column width={2}></Grid.Column>
+        <Grid.Column width={6}>
+          <Header as="h2" textAlign="center">
+            AI Board
+          </Header>
+          <Grid columns={10}>{gameBoardFactory(aiShips).initialize("AI")}</Grid>
         </Grid.Column>
       </Grid>
     </>
