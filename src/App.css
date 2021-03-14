@@ -2,9 +2,17 @@
   border: 1px solid black;
 }
 .eachGrid:hover {
-  background-color: #7fffd4;
+  background-color: gainsboro;
 }
 
 .shipGrid {
-  background-color: aquamarine;
+  background-color: black;
+}
+
+.damagedGrid {
+  background-color: red;
+}
+
+.missedShotGrid {
+  background-color: grey;
 }
