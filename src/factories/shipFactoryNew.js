@@ -38,15 +38,17 @@ const shipFactory = (boundary) => {
         shipCoordinateObj[antiAxis] === 0
       );
     };
+    const shipPosition = shipCoordinateObj[axis];
     const isAttacked = () => {
-      const shipPosition = shipCoordinateObj[axis];
-      return shipDamagePosition[shipPosition];
+      return shipDamagePosition[shipCoordinateObj[axis]];
     };
 
     if (isInsideShipBoundary() && !isAttacked()) {
       isSunk();
+      shipDamagePosition[shipCoordinateObj[axis]] = true;
       return true;
     }
+
     return false;
   };
 
