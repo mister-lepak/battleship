@@ -5,6 +5,10 @@
   background-color: gainsboro;
 }
 
+.AIGrid {
+  border: 1px solid black;
+}
+
 .shipGrid {
   background-color: black;
 }

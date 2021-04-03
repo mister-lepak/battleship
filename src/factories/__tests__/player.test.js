@@ -1,13 +1,20 @@
-import { player } from "../playerFactory";
+import playerFactory from "../playerFactory";
 
-it("AI choose random value", () => {
-  expect(player("AI").randomAttack()).not.toBeNull();
+it("tests if setIsAI works successfully", () => {
+  const playerTest = playerFactory();
+  expect(playerTest.setIsAITurn(true)).toBe(true);
+  // playerTest.isAITurn = true;
+  expect(playerTest.isAITurn).toBe(true);
 });
 
-it("make player's turns active", () => {
-  expect(player("user").makeTurnsActive()).toBe(true);
-});
-
-it("checks if locks gameBoard returns true", () => {
-  expect(player("AI").lockGameboard()).toBe(true);
+it("tests if the makeRandomTurn works successfully", () => {
+  const playerTest = playerFactory();
+  expect(playerTest.setIsAITurn(true)).toBe(true);
+  // playerTest.isAITurn = true;
+  expect(playerTest.makeRandomTurn()).toEqual(
+    expect.objectContaining({
+      x: expect.any(Number),
+      y: expect.any(Number),
+    })
+  );
 });

@@ -1,68 +1,32 @@
-import { render, screen } from "@testing-library/react";
-import App from "../../App";
-import { shipFactory } from "../shipFactory";
+import shipFactory from "../shipFactory";
 
-test("renders learn react link", () => {
-  render(<App />);
+it("tests if the ship has sunk", () => {
+  let ship = shipFactory({ orientation: "horizontal", length: 4 });
+  ship.setShipInitialStatus(true);
+  expect(ship.isSunk()).toBe(true);
 });
 
-it("hit() successfully", () => {
-  const input = [5, 2];
-
-  const shipTest = shipFactory(
-    3,
-    "horizontal",
-    [3, 2],
-    [false, false, false],
-    false
-  );
-  expect(shipTest.hit(input)).toBe(true);
+it("tests if the ship has hit successfully in origin", () => {
+  let ship = shipFactory({ orientation: "horizontal", length: 4 });
+  expect(ship.hit(0, 0)).toBe(true);
 });
 
-it("hit() on already damaged part", () => {
-  const input = [5, 2];
-
-  const shipTest = shipFactory(
-    3,
-    "horizontal",
-    [3, 2],
-    [false, false, true],
-    false
-  );
-  expect(shipTest.hit(input)).toBe(false);
+it("tests if the ship has hit successfully within boundary", () => {
+  let ship = shipFactory({ orientation: "horizontal", length: 4 });
+  expect(ship.hit(3, 0)).toBe(true);
 });
 
-it("misses the hit()", () => {
-  const input = [5, 3];
-
-  const shipTest = shipFactory(
-    3,
-    "horizontal",
-    [3, 2],
-    [false, false, false],
-    false
-  );
-  expect(shipTest.hit(input)).toBe(false);
+it("tests if the ship hit unsuccessfully (beyond Y-axis boundary)", () => {
+  let ship = shipFactory({ orientation: "horizontal", length: 4 });
+  expect(ship.hit(0, 2)).toBe(false);
 });
 
-it("assess if the ship has sunk when not all position damaged", () => {
-  const shipTest = shipFactory(
-    3,
-    "horizontal",
-    [3, 2],
-    [false, true, false],
-    false
-  );
-  expect(shipTest.isSunk()).toBe(false);
+it("tests if the ship hit unsuccessfully (beyond X-axis boundary)", () => {
+  let ship = shipFactory({ orientation: "horizontal", length: 4 });
+  expect(ship.hit(50, 0)).toBe(false);
 });
 
-it("assess if the ship has sunk when all position damaged", () => {
-  const shipTest = shipFactory(
-    3,
-    "horizontal",
-    [3, 2],
-    [true, true, true],
-    false
-  );
-  expect(shipTest.isSunk()).toBe(true);
+it("tests if the ship hit unsuccessfully (in -ve X-axis boundary)", () => {
+  let ship = shipFactory({ orientation: "horizontal", length: 4 });
+  expect(ship.hit(-7, 0)).toBe(false);
 });

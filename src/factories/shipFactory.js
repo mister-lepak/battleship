@@ -1,39 +1,58 @@
-const shipFactory = (
-  length = 3,
-  orientation = "horizontal",
-  startPos,
-  damagedPos = [false, false, false],
-  sunk = false
-) => {
-  const hit = (inputPos) => {
-    if (sunk) return false;
+import _ from "lodash";
 
-    const relativeHitPos = [
-      inputPos[0] - startPos[0],
-      inputPos[1] - startPos[1],
-    ];
-    const orientationAxis = orientation === "horizontal" ? 0 : 1;
-    const staticAxis = 1 - orientationAxis;
-    if (relativeHitPos[staticAxis] !== 0) return false;
+const shipFactory = (boundary) => {
+  let shipDamagePosition = [];
 
-    const orientationPos = relativeHitPos[orientationAxis];
-    if (orientationPos < 0 || orientationPos >= length) return false;
-
-    const isAlreadyDamaged = damagedPos[orientationPos];
-    damagedPos[orientationPos] = true;
-
-    return !isAlreadyDamaged;
+  const setShipInitialStatus = (value) => {
+    shipDamagePosition = [];
+    return _.times(boundary.length, (i) => {
+      shipDamagePosition.push(value);
+    });
   };
 
+  setShipInitialStatus(false);
+
   const isSunk = () => {
-    const isAllDamaged = damagedPos.reduce(
-      (cumulative, eachDamagedPos) => cumulative && eachDamagedPos
+    return shipDamagePosition.reduce(
+      (cumulative, current) => cumulative && current,
+      true
     );
-    if (isAllDamaged) return true;
+  };
+
+  const hit = (x, y) => {
+    const shipCoordinateObj = { x, y };
+    let axis = "x";
+    let antiAxis = "y";
+    const isInsideShipBoundary = () => {
+      if (boundary.orientation === "horizontal") {
+        axis = "x";
+        antiAxis = "y";
+      }
+      if (boundary.orientation === "vertical") {
+        axis = "y";
+        antiAxis = "x";
+      }
+      return (
+        shipCoordinateObj[axis] >= 0 &&
+        shipCoordinateObj[axis] < boundary.length &&
+        shipCoordinateObj[antiAxis] === 0
+      );
+    };
+
+    const isAttacked = () => {
+      return shipDamagePosition[shipCoordinateObj[axis]];
+    };
+
+    if (isInsideShipBoundary() && !isAttacked()) {
+      isSunk();
+      shipDamagePosition[shipCoordinateObj[axis]] = true;
+      return true;
+    }
+
     return false;
   };
 
-  return { length, orientation, startPos, damagedPos, sunk, hit, isSunk };
+  return { shipDamagePosition, hit, boundary, isSunk, setShipInitialStatus };
 };
 
-module.exports = { shipFactory };
+export default shipFactory;

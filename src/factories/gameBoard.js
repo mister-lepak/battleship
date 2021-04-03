@@ -1,22 +1,19 @@
-import { shipFactory } from "./shipFactoryNew";
+import { playerFactory } from "./playerFactory";
+import { Grid } from "semantic-ui-react";
+import "../App.css";
+import { forwardRef } from "react";
 
-const gameBoard = (gameBoardSizeX = 10, gameBoardSizeY = 10) => {
-  let shipsInfo = [];
-
-  const setStaticShipsInfo = () => {
-    shipsInfo = [
-      {
-        ship: shipFactory({ orientation: "horizontal", length: 3 }),
-        origin: { x: 4, y: 5 },
-      },
-      {
-        ship: shipFactory({ orientation: "vertical", length: 5 }),
-        origin: { x: 3, y: 2 },
-      },
-    ];
+const gameBoard = (config = {}) => {
+  const parseConfig = (cfg) => {
+    let { shipsInfo, gameBoardSizeX, gameBoardSizeY } = config;
+    return {
+      shipsInfo: shipsInfo || [],
+      gameBoardSizeX: gameBoardSizeX || 10,
+      gameBoardSizeY: gameBoardSizeY || 10,
+    };
   };
 
-  setStaticShipsInfo();
+  const { shipsInfo, gameBoardSizeX, gameBoardSizeY } = parseConfig(config);
 
   const createGameBoardGrid = () => {
     const boardGrid = [];
@@ -59,28 +56,72 @@ const gameBoard = (gameBoardSizeX = 10, gameBoardSizeY = 10) => {
   };
 
   const areAllShipsSunk = () => {
-    const filteredGameBoard = gameBoardGrid
-      .map((row) => {
-        return row.filter((grid) => {
-          return grid.shipInfo !== null;
-        });
-      })
-      .filter((row) => row[0]);
+    return shipsInfo.reduce((cum, curr) => curr.ship.isSunk() && cum, true);
+  };
 
-    return filteredGameBoard.reduce(
-      (cumulative, current) =>
-        cumulative && current.every((grid) => grid.shipInfo.ship.isSunk()),
-      true
-    );
+  const renderGrids = (assignedPlayer, player, humanElRefs) => {
+    let gridClass = "eachGrid";
+    return gameBoardGrid.map((row, y) => {
+      return row.map((column, x) => {
+        //   humanElRefs.current[y].push(0);
+        return (
+          <Grid.Column textAlign="center">
+            <div
+              ref={(ref) => {
+                if (
+                  assignedPlayer === "Human" &&
+                  humanElRefs.current[9].length < 10
+                )
+                  humanElRefs.current[y].push(ref);
+              }}
+              className={gridClass}
+              onClick={(e) => {
+                const attack = receiveAttack(x, y);
+
+                if (player.isAITurn === false && assignedPlayer === "AI") {
+                  console.log(player);
+                  if (attack === false || attack === "missed attack") {
+                    e.target.classList.remove("eachGrid");
+                    e.target.classList.add("missedShotGrid");
+                  } else {
+                    e.target.classList.remove("shipGrid");
+                    e.target.classList.add("damagedGrid");
+                  }
+
+                  setTimeout(() => {
+                    player.isAITurn = true;
+                    player.setIsAITurn(true);
+                    console.log(player);
+                    const randomMove = player.makeRandomTurn(
+                      gameBoardSizeX,
+                      gameBoardSizeY
+                    );
+                    console.log(randomMove);
+                    console.log(humanElRefs);
+                    humanElRefs.current[randomMove.y][
+                      randomMove.x
+                    ].current.click();
+                    player.isAITurn = false;
+                  }, 1000);
+                }
+
+                if (areAllShipsSunk()) {
+                  console.log("all ships sunk!");
+                }
+              }}
+            ></div>
+          </Grid.Column>
+        );
+      });
+    });
   };
 
   return {
     gameBoardGrid,
-    shipFactory,
-    setStaticShipsInfo,
     receiveAttack,
     areAllShipsSunk,
+    renderGrids,
   };
 };
 
-module.exports = { gameBoard };
+export default gameBoard;
