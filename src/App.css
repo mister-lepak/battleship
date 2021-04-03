@@ -1,5 +1,11 @@
+.gridBox {
+  padding: 0 !important;
+  background-color: rgba(0, 0, 0, 0) !important;
+}
+
 .eachGrid {
   border: 1px solid black;
+  height: 30px;
 }
 .eachGrid:hover {
   background-color: gainsboro;

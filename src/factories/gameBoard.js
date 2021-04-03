@@ -65,7 +65,7 @@ const gameBoard = (config = {}) => {
       return row.map((column, x) => {
         //   humanElRefs.current[y].push(0);
         return (
-          <Grid.Column textAlign="center">
+          <Grid.Column textAlign="center" className="gridBox">
             <div
               ref={(ref) => {
                 if (
@@ -79,12 +79,12 @@ const gameBoard = (config = {}) => {
                 const attack = receiveAttack(x, y);
 
                 if (player.isAITurn === false && assignedPlayer === "AI") {
-                  console.log(player);
+                  console.log(attack);
                   if (attack === false || attack === "missed attack") {
-                    e.target.classList.remove("eachGrid");
+                    // e.target.classList.remove("shipGrid");
                     e.target.classList.add("missedShotGrid");
                   } else {
-                    e.target.classList.remove("shipGrid");
+                    // e.target.classList.remove("shipGrid");
                     e.target.classList.add("damagedGrid");
                   }
 
@@ -98,9 +98,7 @@ const gameBoard = (config = {}) => {
                     );
                     console.log(randomMove);
                     console.log(humanElRefs);
-                    humanElRefs.current[randomMove.y][
-                      randomMove.x
-                    ].current.click();
+                    humanElRefs.current[randomMove.y][randomMove.x].click();
                     player.isAITurn = false;
                   }, 1000);
                 }
