@@ -27,16 +27,14 @@ function App() {
     value: false,
     x: null,
     y: null,
-    validity: 3,
   });
   const [contSuccessfulHit, setContSuccessfulHit] = useState({
     value: false,
     x: null,
     y: null,
-    validity: 1,
   });
-  const [calcVariationX, setCalcVariationX] = useState([1, 0, -1, 0]);
-  const [calcVariationY, setCalcVariationY] = useState([0, -1, 0, 1]);
+  const [calcVariationX, setCalcVariationX] = useState([1, -1, 0, 0]);
+  const [calcVariationY, setCalcVariationY] = useState([0, 0, -1, 1]);
 
   const createShipsInfoData = (input) => {
     const inputInfo = input || [
@@ -117,42 +115,46 @@ function App() {
       setActivePlayer("AI");
       setTimeout(() => {
         let randomCoordinates = {};
+        let contSuccessfulHitValidity = 1;
+        let successfulHitValidity = 3;
         do {
-          if (contSuccessfulHit.value && contSuccessfulHit.validity >= 0) {
+          if (contSuccessfulHit.value && contSuccessfulHitValidity >= 0) {
             contSuccessfulHit.x - successfulHit.x === 0
               ? (randomCoordinates.x = contSuccessfulHit.x)
               : (randomCoordinates.x =
                   contSuccessfulHit.x +
-                  calcVariationX[contSuccessfulHit.validity]);
+                  calcVariationX[contSuccessfulHitValidity]);
             contSuccessfulHit.y - successfulHit.y === 0
               ? (randomCoordinates.y = contSuccessfulHit.y)
               : (randomCoordinates.y =
                   contSuccessfulHit.y +
-                  calcVariationY[contSuccessfulHit.validity]);
-            console.log("works here");
-            setContSuccessfulHit({
-              ...contSuccessfulHit,
-              validity: contSuccessfulHit.validity - 1,
-            });
-          } else if (successfulHit.value && successfulHit.validity >= 0) {
+                  calcVariationX[contSuccessfulHitValidity]);
+
+            contSuccessfulHitValidity = contSuccessfulHitValidity - 1;
+          } else if (successfulHit.value && successfulHitValidity >= 0) {
             randomCoordinates.x =
-              successfulHit.x + calcVariationX[successfulHit.validity];
+              successfulHit.x + calcVariationX[successfulHitValidity];
             randomCoordinates.y =
-              successfulHit.y + calcVariationY[successfulHit.validity];
-            setSuccessfulHit({
-              ...successfulHit,
-              validity: successfulHit.validity - 1,
-            });
+              successfulHit.y + calcVariationY[successfulHitValidity];
+            successfulHitValidity = successfulHitValidity - 1;
           } else randomCoordinates = playerMove.makeRandomTurn();
-          if (successfulHit.validity < 0)
-            setSuccessfulHit({ value: false, x: null, y: null, validity: 3 });
-          if (contSuccessfulHit.validity < 0)
+
+          if (contSuccessfulHitValidity < 0) {
             setContSuccessfulHit({
               value: false,
               x: null,
               y: null,
-              validity: 1,
             });
+          }
+
+          if (successfulHitValidity < 0) {
+            randomCoordinates = playerMove.makeRandomTurn();
+            setSuccessfulHit({
+              value: false,
+              x: null,
+              y: null,
+            });
+          }
         } while (
           !humanGameBoard.receiveAttack(
             randomCoordinates.x,
