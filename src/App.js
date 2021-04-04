@@ -193,8 +193,6 @@ function App() {
                 y: randomCoordinates.y,
               });
         }
-        console.log(successfulHit);
-        console.log(contSuccessfulHit);
         setActivePlayer("Human");
       }, 1000);
     }
