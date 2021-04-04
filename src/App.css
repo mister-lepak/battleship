@@ -1,3 +1,7 @@
+body {
+  background: darkgrey !important;
+}
+
 .gridBox {
   padding: 0 !important;
   background-color: rgba(0, 0, 0, 0) !important;
@@ -6,6 +10,7 @@
 .eachGrid {
   border: 1px solid black;
   height: 30px;
+  background-color: white;
 }
 .eachGrid:hover {
   background-color: gainsboro;
@@ -25,4 +30,8 @@
 
 .missedShotGrid {
   background-color: grey;
+}
+
+.ownShips {
+  background-color: cadetblue;
 }

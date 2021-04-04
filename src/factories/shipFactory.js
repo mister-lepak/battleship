@@ -5,7 +5,7 @@ const shipFactory = (boundary) => {
 
   const setShipInitialStatus = (value) => {
     shipDamagePosition = [];
-    return _.times(boundary.length, (i) => {
+    return _.times(boundary.shipLength, (i) => {
       shipDamagePosition.push(value);
     });
   };
@@ -34,7 +34,7 @@ const shipFactory = (boundary) => {
       }
       return (
         shipCoordinateObj[axis] >= 0 &&
-        shipCoordinateObj[axis] < boundary.length &&
+        shipCoordinateObj[axis] < boundary.shipLength &&
         shipCoordinateObj[antiAxis] === 0
       );
     };

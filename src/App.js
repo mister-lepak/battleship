@@ -3,69 +3,277 @@ import shipFactory from "./factories/shipFactory";
 import gameBoard from "./factories/gameBoard";
 import playerFactory from "./factories/playerFactory";
 import { Link } from "react-router-dom";
-import { Header, Grid } from "semantic-ui-react";
-import { useEffect, useState, useRef } from "react";
+import { Header, Grid, Button, Icon } from "semantic-ui-react";
+import { useEffect, useState } from "react";
+import { GameBoardGrids } from "./Components/GameBoardGrid";
+import Announcement from "./Components/Announcement";
 
 function App() {
-  const activePlayer = playerFactory();
-  const decideTurn = () => {};
+  const playerMove = playerFactory();
+  const [activePlayer, setActivePlayer] = useState("Human");
+  const [gameStage, setGameStage] = useState(0);
 
-  const createNewTestShipsInfoData = () => {
-    return [
-      {
-        ship: shipFactory({ orientation: "horizontal", length: 3 }),
-        origin: { x: 4, y: 5 },
-      },
-      {
-        ship: shipFactory({ orientation: "vertical", length: 5 }),
-        origin: { x: 3, y: 2 },
-      },
+  const [userShipInfo, setUserShipInfo] = useState([]);
+  const [shipPlacingCount, setShipPlacingCount] = useState(0);
+  const [shipOrientationList, setShipOrientationList] = useState([
+    "horizontal",
+    "vertical",
+  ]);
+  const [shipOrientation, setShipOrientation] = useState(0);
+  const [winner, setWinner] = useState("");
+  const [winnerModal, setWinnerModal] = useState(false);
+
+  const createShipsInfoData = (input) => {
+    const inputInfo = input || [
+      { x: 7, y: 2, orientation: "vertical", shipLength: 2 },
+      { x: 4, y: 5, orientation: "horizontal", shipLength: 3 },
+      { x: 5, y: 9, orientation: "horizontal", shipLength: 4 },
+      { x: 1, y: 2, orientation: "vertical", shipLength: 5 },
     ];
+
+    if (inputInfo.length === 0) {
+      return [];
+    }
+
+    let shipsInfo = [];
+    for (let i = 0; i < inputInfo.length; i++) {
+      shipsInfo = [
+        ...shipsInfo,
+        {
+          ship: shipFactory({
+            orientation: inputInfo[i].orientation,
+            shipLength: inputInfo[i].shipLength,
+          }),
+          origin: { x: inputInfo[i].x, y: inputInfo[i].y },
+        },
+      ];
+    }
+    return shipsInfo;
   };
 
   const [humanGameBoard, setHumanGameBoard] = useState(
     gameBoard({
-      shipsInfo: createNewTestShipsInfoData(),
+      shipsInfo: createShipsInfoData(userShipInfo),
     })
   );
+
   const [AIGameBoard, setAIGameBoard] = useState(
     gameBoard({
-      shipsInfo: createNewTestShipsInfoData(),
+      shipsInfo: createShipsInfoData(),
     })
   );
 
-  const humanElRefs = useRef([[], [], [], [], [], [], [], [], [], []]);
+  const initializeStates = () => {
+    setActivePlayer("Human");
+    setGameStage(0);
+    setUserShipInfo([]);
+    setShipPlacingCount(0);
+    setShipOrientation(0);
+    setWinner("");
+    setWinnerModal(false);
+    setHumanGameBoard(
+      gameBoard({
+        shipsInfo: createShipsInfoData(userShipInfo),
+      })
+    );
+    setAIGameBoard(
+      gameBoard({
+        shipsInfo: createShipsInfoData(),
+      })
+    );
+  };
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    setHumanGameBoard(
+      gameBoard({
+        shipsInfo: createShipsInfoData(userShipInfo),
+      })
+    );
+  }, [userShipInfo]);
+
+  const orderMove = (x, y) => {
+    if (
+      !AIGameBoard.gameBoardGrid[y][x].isDamaged &&
+      activePlayer === "Human" &&
+      !AIGameBoard.areAllShipsSunk() &&
+      !humanGameBoard.areAllShipsSunk()
+    ) {
+      AIGameBoard.receiveAttack(x, y);
+      setActivePlayer("AI");
+      setTimeout(() => {
+        let randomCoordinates = {};
+        do {
+          randomCoordinates = playerMove.makeRandomTurn();
+        } while (
+          !humanGameBoard.receiveAttack(
+            randomCoordinates.x,
+            randomCoordinates.y
+          )
+        );
+        setActivePlayer("Human");
+      }, 1000);
+    }
+
+    if (humanGameBoard.areAllShipsSunk()) {
+      setWinner("AI");
+      setWinnerModal(true);
+    }
+    if (AIGameBoard.areAllShipsSunk()) {
+      setWinner("Human");
+      setWinnerModal(true);
+    }
+  };
+
+  const checkClashesUponPlacement = (x, y) => {
+    const statusCheck = userShipInfo.map((eachShip) => {
+      let clashStatus = [];
+      for (let i = 0; i < shipPlacingCount + 2; i++) {
+        const dx = shipOrientation === 0;
+        const dy = shipOrientation === 1;
+        const iterX = x + dx * i;
+        const iterY = y + dy * i;
+        const relativeX = iterX - eachShip.x;
+        const relativeY = iterY - eachShip.y;
+        const shipCoordinateObj = { relativeX, relativeY };
+        let axis = "relativeX";
+        let antiAxis = "relativeY";
+
+        if (eachShip.orientation === "horizontal") {
+          axis = "relativeX";
+          antiAxis = "relativeY";
+        }
+        if (eachShip.orientation === "vertical") {
+          axis = "relativeY";
+          antiAxis = "relativeX";
+        }
+
+        clashStatus.push(
+          shipCoordinateObj[axis] >= 0 &&
+            shipCoordinateObj[axis] < eachShip.shipLength &&
+            shipCoordinateObj[antiAxis] === 0
+        );
+      }
+
+      return clashStatus.includes(true);
+    });
+
+    if (statusCheck.length === 0) return false;
+
+    return statusCheck.includes(true);
+  };
+
+  const placeUserShips = (x, y, gameBoardSize = 10) => {
+    if (gameStage === 1) {
+      const dx = shipOrientation === 0;
+      const dy = shipOrientation === 1;
+
+      if (
+        x + dx * (shipPlacingCount + 2) > gameBoardSize ||
+        y + dy * (shipPlacingCount + 2) > gameBoardSize
+      )
+        return null;
+
+      console.log(checkClashesUponPlacement(x, y));
+      if (checkClashesUponPlacement(x, y)) return null;
+
+      setUserShipInfo([
+        ...userShipInfo,
+        {
+          x,
+          y,
+          orientation: shipOrientationList[shipOrientation],
+          shipLength: shipPlacingCount + 2,
+        },
+      ]);
+
+      setShipPlacingCount((prev) => prev + 1);
+    }
+    if (shipPlacingCount >= 3) setGameStage(2);
+  };
 
   return (
     <>
-      <Header as="h1" textAlign="center">
+      <Announcement
+        winner={winner}
+        open={winnerModal}
+        setOpen={setWinnerModal}
+        initializeStates={initializeStates}
+      />
+      <Header icon as="h1" textAlign="center">
+        <Icon name="ship" size="small" />
         Battleship Game
       </Header>
-      <Header as="h2" textAlign="center">
-        <Link to="/">Start Game</Link>
-      </Header>
-      <Grid onClick={() => {}}>
-        <Grid.Column width={1}></Grid.Column>
-        <Grid.Column width={6}>
-          <Header as="h2" textAlign="center">
-            User Board
-          </Header>
-          <Grid columns={10}>
-            {humanGameBoard.renderGrids("Human", activePlayer, humanElRefs)}
-          </Grid>
-        </Grid.Column>
-        <Grid.Column width={2}></Grid.Column>
-        <Grid.Column width={6}>
-          <Header as="h2" textAlign="center">
-            AI Board
-          </Header>
-          <Grid columns={10}>
-            {AIGameBoard.renderGrids("AI", activePlayer, humanElRefs)}
-          </Grid>
-        </Grid.Column>
-      </Grid>
+      {gameStage > 0 ? (
+        <></>
+      ) : (
+        <Header as="h2" textAlign="center">
+          <Link
+            to="/"
+            onClick={() => {
+              setGameStage(1);
+            }}
+          >
+            Start Game
+          </Link>
+        </Header>
+      )}
+
+      {gameStage > 0 ? (
+        <Grid>
+          <Grid.Column width={1}></Grid.Column>
+          <Grid.Column width={6}>
+            <Header as="h2" textAlign="center">
+              User Board
+            </Header>
+            <Grid columns={10}>
+              <GameBoardGrids
+                gameBoard={humanGameBoard}
+                accessiblePlayer="AI"
+                onCellClick={placeUserShips}
+              />
+              ;
+            </Grid>
+          </Grid.Column>
+          <Grid.Column width={2}></Grid.Column>
+          <Grid.Column width={6}>
+            {gameStage > 1 ? (
+              <>
+                <Header as="h2" textAlign="center">
+                  AI Board
+                </Header>
+                <Grid columns={10}>
+                  <GameBoardGrids
+                    gameBoard={AIGameBoard}
+                    accessiblePlayer="Human"
+                    onCellClick={orderMove}
+                  />
+                </Grid>
+              </>
+            ) : (
+              <>
+                <Header as="h2" textAlign="center">
+                  Place your ship {shipPlacingCount + 1} out of 4 ships
+                </Header>
+                <Header as="h3" textAlign="center">
+                  Ship Length: {shipPlacingCount + 2}
+                  <br></br>
+                  Ship Orientation: {shipOrientationList[shipOrientation]}
+                  <br></br>
+                  <Button
+                    primary
+                    textAlign="center"
+                    onClick={() => setShipOrientation(1 - shipOrientation)}
+                  >
+                    Switch Ship Orientation
+                  </Button>
+                </Header>
+              </>
+            )}
+          </Grid.Column>
+        </Grid>
+      ) : (
+        <></>
+      )}
     </>
   );
 }

@@ -4,11 +4,11 @@ import shipFactory from "../shipFactory";
 const createNewTestShipsInfoData = () => {
   return [
     {
-      ship: shipFactory({ orientation: "horizontal", length: 3 }),
+      ship: shipFactory({ orientation: "horizontal", shipLength: 3 }),
       origin: { x: 4, y: 5 },
     },
     {
-      ship: shipFactory({ orientation: "vertical", length: 5 }),
+      ship: shipFactory({ orientation: "vertical", shipLength: 5 }),
       origin: { x: 3, y: 2 },
     },
   ];

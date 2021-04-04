@@ -1,7 +1,4 @@
-import { playerFactory } from "./playerFactory";
-import { Grid } from "semantic-ui-react";
 import "../App.css";
-import { forwardRef } from "react";
 
 const gameBoard = (config = {}) => {
   const parseConfig = (cfg) => {
@@ -28,12 +25,13 @@ const gameBoard = (config = {}) => {
     shipsInfo.forEach((shipInfo) => {
       const dx = shipInfo.ship.boundary.orientation === "horizontal";
       const dy = shipInfo.ship.boundary.orientation === "vertical";
-      for (let i = 0; i < shipInfo.ship.boundary.length; i++) {
+      for (let i = 0; i < shipInfo.ship.boundary.shipLength; i++) {
         const x = shipInfo.origin.x + dx * i;
         const y = shipInfo.origin.y + dy * i;
         boardGrid[y][x].shipInfo = shipInfo;
       }
     });
+
     return boardGrid;
   };
 
@@ -59,66 +57,10 @@ const gameBoard = (config = {}) => {
     return shipsInfo.reduce((cum, curr) => curr.ship.isSunk() && cum, true);
   };
 
-  const renderGrids = (assignedPlayer, player, humanElRefs) => {
-    let gridClass = "eachGrid";
-    return gameBoardGrid.map((row, y) => {
-      return row.map((column, x) => {
-        //   humanElRefs.current[y].push(0);
-        return (
-          <Grid.Column textAlign="center" className="gridBox">
-            <div
-              ref={(ref) => {
-                if (
-                  assignedPlayer === "Human" &&
-                  humanElRefs.current[9].length < 10
-                )
-                  humanElRefs.current[y].push(ref);
-              }}
-              className={gridClass}
-              onClick={(e) => {
-                const attack = receiveAttack(x, y);
-
-                if (player.isAITurn === false && assignedPlayer === "AI") {
-                  console.log(attack);
-                  if (attack === false || attack === "missed attack") {
-                    // e.target.classList.remove("shipGrid");
-                    e.target.classList.add("missedShotGrid");
-                  } else {
-                    // e.target.classList.remove("shipGrid");
-                    e.target.classList.add("damagedGrid");
-                  }
-
-                  setTimeout(() => {
-                    player.isAITurn = true;
-                    player.setIsAITurn(true);
-                    console.log(player);
-                    const randomMove = player.makeRandomTurn(
-                      gameBoardSizeX,
-                      gameBoardSizeY
-                    );
-                    console.log(randomMove);
-                    console.log(humanElRefs);
-                    humanElRefs.current[randomMove.y][randomMove.x].click();
-                    player.isAITurn = false;
-                  }, 1000);
-                }
-
-                if (areAllShipsSunk()) {
-                  console.log("all ships sunk!");
-                }
-              }}
-            ></div>
-          </Grid.Column>
-        );
-      });
-    });
-  };
-
   return {
     gameBoardGrid,
     receiveAttack,
     areAllShipsSunk,
-    renderGrids,
   };
 };
 
