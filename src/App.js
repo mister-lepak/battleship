@@ -7,6 +7,7 @@ import { Header, Grid, Button, Icon } from "semantic-ui-react";
 import { useEffect, useState } from "react";
 import { GameBoardGrids } from "./Components/GameBoardGrid";
 import Announcement from "./Components/Announcement";
+import { random } from "lodash";
 
 function App() {
   const playerMove = playerFactory();
@@ -22,6 +23,20 @@ function App() {
   const [shipOrientation, setShipOrientation] = useState(0);
   const [winner, setWinner] = useState("");
   const [winnerModal, setWinnerModal] = useState(false);
+  const [successfulHit, setSuccessfulHit] = useState({
+    value: false,
+    x: null,
+    y: null,
+    validity: 3,
+  });
+  const [contSuccessfulHit, setContSuccessfulHit] = useState({
+    value: false,
+    x: null,
+    y: null,
+    validity: 1,
+  });
+  const [calcVariationX, setCalcVariationX] = useState([1, 0, -1, 0]);
+  const [calcVariationY, setCalcVariationY] = useState([0, -1, 0, 1]);
 
   const createShipsInfoData = (input) => {
     const inputInfo = input || [
@@ -103,13 +118,81 @@ function App() {
       setTimeout(() => {
         let randomCoordinates = {};
         do {
-          randomCoordinates = playerMove.makeRandomTurn();
+          if (contSuccessfulHit.value && contSuccessfulHit.validity >= 0) {
+            contSuccessfulHit.x - successfulHit.x === 0
+              ? (randomCoordinates.x = contSuccessfulHit.x)
+              : (randomCoordinates.x =
+                  contSuccessfulHit.x +
+                  calcVariationX[contSuccessfulHit.validity]);
+            contSuccessfulHit.y - successfulHit.y === 0
+              ? (randomCoordinates.y = contSuccessfulHit.y)
+              : (randomCoordinates.y =
+                  contSuccessfulHit.y +
+                  calcVariationY[contSuccessfulHit.validity]);
+            console.log("works here");
+            setContSuccessfulHit({
+              ...contSuccessfulHit,
+              validity: contSuccessfulHit.validity - 1,
+            });
+          } else if (successfulHit.value && successfulHit.validity >= 0) {
+            randomCoordinates.x =
+              successfulHit.x + calcVariationX[successfulHit.validity];
+            randomCoordinates.y =
+              successfulHit.y + calcVariationY[successfulHit.validity];
+            setSuccessfulHit({
+              ...successfulHit,
+              validity: successfulHit.validity - 1,
+            });
+          } else randomCoordinates = playerMove.makeRandomTurn();
+          if (successfulHit.validity < 0)
+            setSuccessfulHit({ value: false, x: null, y: null, validity: 3 });
+          if (contSuccessfulHit.validity < 0)
+            setContSuccessfulHit({
+              value: false,
+              x: null,
+              y: null,
+              validity: 1,
+            });
         } while (
           !humanGameBoard.receiveAttack(
             randomCoordinates.x,
             randomCoordinates.y
           )
         );
+        if (
+          humanGameBoard.gameBoardGrid[randomCoordinates.y][randomCoordinates.x]
+            .shipInfo
+        ) {
+          if (contSuccessfulHit.value) {
+            setSuccessfulHit({
+              value: true,
+              x: contSuccessfulHit.x,
+              y: contSuccessfulHit.y,
+            });
+            setContSuccessfulHit({
+              ...contSuccessfulHit,
+              value: true,
+              x: randomCoordinates.x,
+              y: randomCoordinates.y,
+            });
+          }
+
+          successfulHit.value
+            ? setContSuccessfulHit({
+                ...contSuccessfulHit,
+                value: true,
+                x: randomCoordinates.x,
+                y: randomCoordinates.y,
+              })
+            : setSuccessfulHit({
+                ...successfulHit,
+                value: true,
+                x: randomCoordinates.x,
+                y: randomCoordinates.y,
+              });
+        }
+        console.log(successfulHit);
+        console.log(contSuccessfulHit);
         setActivePlayer("Human");
       }, 1000);
     }
@@ -173,7 +256,6 @@ function App() {
       )
         return null;
 
-      console.log(checkClashesUponPlacement(x, y));
       if (checkClashesUponPlacement(x, y)) return null;
 
       setUserShipInfo([
