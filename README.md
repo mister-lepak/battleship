@@ -1,4 +1,4 @@
-# Blog App Client Side
+# Battleship Game
 
 ## What is this about?
 
